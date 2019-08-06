@@ -1,0 +1,65 @@
+require:
+- rubocop-performance
+
+AllCops:
+  TargetRubyVersion: 2.5
+  Exclude:
+  - Gemfile
+  - Rakefile
+  DisplayCopNames: true
+
+Gemspec/OrderedDependencies:
+  Enabled: false
+
+Style/NumericLiterals:
+  Enabled: false
+
+Style/StderrPuts:
+  Enabled: false
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/ExpandPathArguments:
+  Enabled: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 128
+
+Style/EmptyCaseCondition:
+  Enabled: false
+
+Layout/EmptyLineAfterMagicComment:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 15
+
+Metrics/AbcSize:
+  Max: 20
+
+Style/ParallelAssignment:
+  Enabled: false
+
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Style/MixinUsage:
+  Exclude:
+    - 'spec/**/*.rb'

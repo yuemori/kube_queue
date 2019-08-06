@@ -2,6 +2,7 @@
 
 require "bundler/setup"
 require "kube_queue"
+require_relative "../docker/test_worker"
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
@@ -11,4 +12,11 @@ require "kube_queue"
 # Pry.start
 
 require "irb"
+
+KubeQueue.kubernetes_configure do |client|
+  client.url = ENV['K8S_URL']
+  client.ssl_ca_file = ENV['K8S_CA_CERT_FILE']
+  client.auth_token = File.read(ENV['K8S_TOKEN'])
+end
+
 IRB.start(__FILE__)

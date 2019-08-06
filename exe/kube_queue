@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/kube_queue/cli'
+
+begin
+  cli = KubeQueue::CLI.new(ARGV)
+  cli.run
+rescue StandardError => e
+  raise e if $DEBUG
+
+  STDERR.puts e.message
+  STDERR.puts e.backtrace.join("\n")
+  exit 1
+end

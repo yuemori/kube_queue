@@ -1,15 +1,18 @@
 # KubeQueue
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/kube_queue`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Features
 
-TODO: Delete this and the text above, and describe your gem
+- Support multiple kubernetes client configuration.
+- Support templating and customization for kubernetes job manifest.
+- Job dosen't returns id. Can not track job details from code.
+- Logging
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'kube_queue'
+gem 'kube-queue'
 ```
 
 And then execute:
@@ -18,26 +21,60 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install kube_queue
+    $ gem install kube-queue
 
-## Usage
+## Getting Started
 
-TODO: Write usage instructions here
+Implement worker:
+
+```ruby
+class TestWorker
+  include KubeQueue::Worker
+
+  job_name_as 'kube-queue-test'
+  image_as "my-registry/my-image"
+  container_name_as 'kube-queue-test'
+
+  command_as 'bundle', 'exec', 'kube_queue', 'TestWorker', '-r', './test_worker.rb'
+
+  def perform(payload)
+    puts payload['message']
+  end
+end
+```
+
+Setting kubernetes configuration and run:
+
+```
+KubeQueue.kubernetes_configure do |client|
+  client.url = ENV['K8S_URL']
+  client.ssl_ca_file = ENV['K8S_CA_CERT_FILE']
+  client.auth_token = File.read(ENV['K8S_TOKEN'])
+end
+
+TestWorker.perform(message: 'hello')
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+setup:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```
+# create service account and cluster role.
+kubectl apply -f k8s/service-account.yaml
 
-## Contributing
+# get ca.crt and token
+< k get secret -n kube-system kube-queue-test-token-xxx -o jsonpath="{['data']['token']}" | base64 -d > secrets/token
+< k get secret -n kube-system kube-queue-test-token-xxx -o jsonpath="{['data']['ca\.crt']}" | base64 -d > secrets/ca.crt
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/kube_queue. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+# build image
+gcloud builds submit --config cloudbuild.yaml .
+```
 
-## License
+run:
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+```
+K8S_URL=https://xx.xxx.xxx.xxx K8S_CA_CERT_FILE=$(pwd)/secrets/ca.crt K8S_TOKEN=$(pwd)/secrets/token IMAGE_NAME=gcr.io/your-project/kube-queue bin/console
 
-## Code of Conduct
-
-Everyone interacting in the KubeQueue project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/kube_queue/blob/master/CODE_OF_CONDUCT.md).
+irb(main):001:0> TestWorker.perform_async(message: 'hello kubernetes')
+```

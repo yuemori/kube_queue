@@ -1,0 +1,5 @@
+images: ['gcr.io/$PROJECT_ID/kube-queue:latest']
+
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-f', '/workspace/Dockerfile', '/workspace', '-t', 'gcr.io/$PROJECT_ID/kube-queue:latest']

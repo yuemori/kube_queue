@@ -1,5 +1,11 @@
+$LOAD_PATH << File.expand_path(__dir__)
+
 require "bundler/setup"
 require "kube_queue"
+
+require 'hash_modern_inspect'
+require 'erbh'
+require 'erb_helper'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

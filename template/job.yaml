@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "<%= job_name %>-<%= id %>"
+spec:
+  template:
+    spec:
+      containers:
+      - name: "<%= container_name %>"
+        image: "<%= image %>"
+        command: <%= command %>
+        env:
+        - name: "KUBE_QUEUE_MESSAGE_PAYLOAD"
+          value: '<%= payload %>'
+      restartPolicy: "<%= restart_policy %>"
+  backoffLimit: <%= backoff_limit %>
