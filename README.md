@@ -2,6 +2,7 @@
 
 ## Features
 
+- ActiveJob integration
 - Support multiple kubernetes client configuration.
 - Support templating and customization for kubernetes job manifest.
 - Job dosen't returns id. Can not track job details from code.
