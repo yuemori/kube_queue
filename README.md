@@ -32,11 +32,11 @@ Implement worker:
 class TestWorker
   include KubeQueue::Worker
 
-  job_name_as 'kube-queue-test'
-  image_as "my-registry/my-image"
-  container_name_as 'kube-queue-test'
+  job_name 'kube-queue-test'
+  image "my-registry/my-image"
+  container_name 'kube-queue-test'
 
-  command_as 'bundle', 'exec', 'kube_queue', 'TestWorker', '-r', './test_worker.rb'
+  command 'bundle', 'exec', 'kube_queue', 'TestWorker', '-r', './test_worker.rb'
 
   def perform(payload)
     puts payload['message']

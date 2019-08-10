@@ -11,69 +11,56 @@ module KubeQueue
     end
 
     module ClassMethods
-      def job_name_as(name)
+      def job_name(name)
         @job_name = name
       end
 
-      def job_name
-        @job_name || raise
-      end
-
-      def container_name
-        @container_name || raise
-      end
-
-      def container_name_as(container_name)
+      def container_name(container_name)
         @container_name = container_name
       end
 
-      def image
-        @image || raise
-      end
-
-      def image_as(image)
+      def image(image)
         @image = image
       end
 
-      def command_as(*command)
+      def command(*command)
         @command = command
       end
 
-      def command
-        @command || ['bundle', 'exec', 'kube_queue', name]
-      end
-
-      def template_as(template)
+      def template(template)
         @template = template
       end
 
-      def template
-        @template || File.read(File.expand_path('../../../template/job.yaml', __FILE__))
+      def restart_policy(policy)
+        @restart_policy = policy
       end
 
-      def restart_policy
-        @restart_policy || 'Never'
+      def backoff_limit(limit)
+        @backoff_limit = limit
       end
 
-      def backoff_limit
-        @backoff_limit || 0
-      end
+      def build_manifest(body)
+        spec = JobSpecification.new.configure do |s|
+          s.id = SecureRandom.uuid
+          s.image = @image
+          s.name = name
+          s.command = @command
+          s.job_name = @job_name
+          s.container_name = @job_name
+          s.template = @template
+          s.backoff_limit = @backoff_limit
+          s.payload = JSON.generate(body, quirks_mode: true)
+        end
 
-      def build_manifest(body, options)
-        config = JobConfiguration.new(self, options)
-
-        config.id = SecureRandom.uuid
-        config.payload = JSON.generate(body, quirks_mode: true)
-
-        YAML.safe_load(ERB.new(template, nil, "%").result(config.binding))
+        spec.to_manifest
       end
 
       def perform_sync(body)
         new.perform(body)
       end
 
-      def perform_async(body, options = {})
-        KubeQueue.executor.perform_async(self, body, options)
+      def perform_async(body)
+        KubeQueue.executor.perform_async(self, body)
       end
     end
   end

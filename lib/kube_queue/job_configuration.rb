@@ -1,37 +1,51 @@
 require 'forwardable'
 
 module KubeQueue
-  class JobConfiguration
+  class JobSpecification
     extend Forwardable
 
-    attr_reader :job
-    attr_accessor :payload, :id
+    attr_accessor :payload, :id, :name
 
-    def_delegators(
-      :job,
-      :command,
-      :job_name,
-      :name,
-      :container_name,
-      :image,
-      :command,
-      :template,
-      :restart_policy,
-      :backoff_limit
-    )
+    attr_writer :image, :job_name, :command, :container_name, :template, :backoff_limit, :restart_policy
 
-    def initialize(job, options)
-      @job = job
-      @options = options
+    def configure
+      yield self
+      self
     end
 
     def backoff_limit
-      @options[:backoff_limit] || job.backoff_limit
+      @backoff_limit || 0
     end
 
     def restart_policy
-      @options[:restart_policy] || job.restart_policy
+      @restart_policy || 'Never'
     end
+
+    def command
+      @command || ['bundle', 'exec', 'kube_queue', name]
+    end
+
+    def image
+      @image || raise
+    end
+
+    def job_name
+      @job_name || raise
+    end
+
+    def container_name
+      @container_name || raise
+    end
+
+    def template
+      @template || File.read(File.expand_path('../../../template/job.yaml', __FILE__))
+    end
+
+    def to_manifest
+      YAML.safe_load(ERB.new(template, nil, "%").result(binding))
+    end
+
+    private
 
     def binding
       super
