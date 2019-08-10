@@ -12,7 +12,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'kube-queue'
+gem 'kube_queue'
 ```
 
 And then execute:
@@ -21,7 +21,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install kube-queue
+    $ gem install kube_queue
 
 ## Getting Started
 
