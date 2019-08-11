@@ -1,14 +1,53 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/kube_queue/cli'
+require 'rubygems'
+require 'thor'
+require 'kube_queue'
+require 'kube_queue/runner'
 
-begin
-  cli = KubeQueue::CLI.new(ARGV)
-  cli.run
-rescue StandardError => e
-  raise e if $DEBUG
+module KubeQueue
+  class CLI < Thor
+    default_task :version
 
-  STDERR.puts e.message
-  STDERR.puts e.backtrace.join("\n")
-  exit 1
+    desc 'runner JOB_NAME PAYLOAD', 'run worker'
+    method_option :require, aliases: '-r', type: :string, desc: 'Location of Rails application with workers or file to require'
+    def runner(job_name, payload = nil)
+      load_files!
+
+      payload ||= payload_from_environment_variable
+
+      runner = Runner.new(job_name)
+
+      runner.run(payload)
+    end
+
+    desc 'version', 'Prints version'
+    def version
+      say "KubeQueue version #{KubeQueue::VERSION}"
+    end
+
+    private
+
+    def payload_from_environment_variable
+      payload = ENV['KUBE_QUEUE_MESSAGE_PAYLOAD']
+
+      return payload if payload
+
+      raise 'Payload is missing. Please given payload argument or set to KUBE_QUEUE_MESSAGE_PAYLOAD environment variable'
+    end
+
+    def load_files!
+      return unless options[:require]
+
+      raise "#{options[:require]} dosent exist." unless File.exist?(options[:require])
+
+      files = File.directory?(options[:require]) ? Dir.glob(File.join(options[:require], '**/*.rb')) : [options[:require]]
+
+      files.each do |file|
+        require file
+      end
+    end
+  end
 end
+
+KubeQueue::CLI.start
