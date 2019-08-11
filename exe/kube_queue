@@ -9,12 +9,12 @@ module KubeQueue
   class CLI < Thor
     default_task :version
 
-    desc 'runner JOB_NAME PAYLOAD', 'run worker'
+    desc 'runner JOB_NAME [PAYLOAD]', 'run worker'
     method_option :require, aliases: '-r', type: :string, desc: 'Location of Rails application with workers or file to require'
     def runner(job_name, payload = nil)
       load_files!
 
-      payload ||= payload_from_environment_variable
+      payload ||= ENV['KUBE_QUEUE_MESSAGE_PAYLOAD']
 
       runner = Runner.new(job_name)
 
@@ -27,14 +27,6 @@ module KubeQueue
     end
 
     private
-
-    def payload_from_environment_variable
-      payload = ENV['KUBE_QUEUE_MESSAGE_PAYLOAD']
-
-      return payload if payload
-
-      raise 'Payload is missing. Please given payload argument or set to KUBE_QUEUE_MESSAGE_PAYLOAD environment variable'
-    end
 
     def load_files!
       return unless options[:require]

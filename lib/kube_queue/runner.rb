@@ -8,10 +8,10 @@ module KubeQueue
     end
 
     def run(payload)
-      payload = JSON.parse(payload)
+      payload = JSON.parse(payload) if payload
 
-      worker = KubeQueue.fetch_worker(@job_name)
-      worker.new.perform(payload)
+      worker = KubeQueue.fetch_worker(@job_name).new
+      payload ? worker.new.perform(payload) : worker.new.perform
     end
   end
 end

@@ -62,7 +62,7 @@ module KubeQueue
           s.template = @template
           s.backoff_limit = @backoff_limit
           s.active_deadline_seconds = @active_deadline_seconds
-          s.payload = JSON.generate(body, quirks_mode: true)
+          s.payload = JSON.generate(body, quirks_mode: true) if body
         end
       end
 
@@ -70,7 +70,7 @@ module KubeQueue
         new.perform(body)
       end
 
-      def perform_async(body)
+      def perform_async(body = nil)
         KubeQueue.executor.perform_async(self, body)
       end
     end
