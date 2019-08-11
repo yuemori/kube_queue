@@ -12,3 +12,14 @@ class TestWorker
     puts payload['message']
   end
 end
+
+# Run official example.
+# see: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+class TestWorker2
+  include KubeQueue::Worker
+
+  worker_name 'pi'
+  image 'perl'
+  container_name 'pi'
+  command "perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"
+end
