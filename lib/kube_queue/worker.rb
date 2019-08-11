@@ -1,6 +1,4 @@
-require 'erb'
-require 'yaml'
-require 'kube_queue/job_configuration'
+require 'kube_queue/job_specification'
 
 module KubeQueue
   module Worker
@@ -11,8 +9,8 @@ module KubeQueue
     end
 
     module ClassMethods
-      def job_name(name)
-        @job_name = name
+      def worker_name(name)
+        @worker_name = name
       end
 
       def container_name(container_name)
@@ -21,6 +19,10 @@ module KubeQueue
 
       def image(image)
         @image = image
+      end
+
+      def namespace(namespace)
+        @namespace = namespace
       end
 
       def command(*command)
@@ -35,24 +37,33 @@ module KubeQueue
         @restart_policy = policy
       end
 
+      def active_deadline_seconds(seconds)
+        @active_deadline_seconds = seconds
+      end
+
       def backoff_limit(limit)
         @backoff_limit = limit
       end
 
-      def build_manifest(body)
-        spec = JobSpecification.new.configure do |s|
+      def labels(labels)
+        @labels = labels
+      end
+
+      def build_specification(body)
+        JobSpecification.new.configure do |s|
           s.id = SecureRandom.uuid
+          s.labels = @labels
           s.image = @image
           s.name = name
+          s.namespace = @namespace
           s.command = @command
-          s.job_name = @job_name
-          s.container_name = @job_name
+          s.worker_name = @worker_name
+          s.container_name = @container_name
           s.template = @template
           s.backoff_limit = @backoff_limit
+          s.active_deadline_seconds = @active_deadline_seconds
           s.payload = JSON.generate(body, quirks_mode: true)
         end
-
-        spec.to_manifest
       end
 
       def perform_sync(body)

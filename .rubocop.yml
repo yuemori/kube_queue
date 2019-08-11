@@ -63,3 +63,6 @@ Metrics/BlockLength:
 Style/MixinUsage:
   Exclude:
     - 'spec/**/*.rb'
+
+Layout/AlignArguments:
+  Enabled: false

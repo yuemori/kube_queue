@@ -3,10 +3,13 @@ require 'pathname'
 
 module KubeQueue
   class Client
-    def create_job(manifest)
+    def create_job(spec)
+      manifest = spec.to_manifest
       job = K8s::Resource.new(manifest)
-      job.metadata.namespace = 'default'
+      job.metadata.namespace ||= 'default'
       client.api('batch/v1').resource('jobs').create_resource(job)
+
+      OpenStruct.new(id: spec.id, manifest: manifest)
     end
 
     attr_accessor :url, :ssl_ca_file, :auth_token

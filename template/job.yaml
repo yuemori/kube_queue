@@ -1,9 +1,15 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "<%= job_name %>-<%= id %>"
+  name: "<%= worker_name %>-<%= id %>"
+  namespace: <%= namespace %>
 spec:
   template:
+    metadata:
+      labels:
+<%- labels.each do |key, value| %>
+        <%= key %>: "<%= value %>"
+<%- end %>
     spec:
       containers:
       - name: "<%= container_name %>"
@@ -14,3 +20,4 @@ spec:
           value: '<%= payload %>'
       restartPolicy: "<%= restart_policy %>"
   backoffLimit: <%= backoff_limit %>
+  activeDeadlineSeconds: <%= active_deadline_seconds %>
