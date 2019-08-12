@@ -5,52 +5,41 @@ module KubeQueue
   class JobSpecification
     class MissingParameterError < StandardError; end
 
-    attr_accessor :payload, :id, :name
+    attr_accessor :payload, :name, :active_deadline_seconds, :backoff_limit
 
-    attr_reader :active_deadline_seconds, :backoff_limit
-
-    attr_writer :image, :namespace, :worker_name, :command, :container_name,
-      :template, :backoff_limit, :restart_policy, :labels, :active_deadline_seconds
-
-    def configure
-      yield self
-      self
-    end
-
-    def restart_policy
-      @restart_policy || 'Never'
-    end
-
-    def command
-      @command || ['bundle', 'exec', 'kube_queue', name]
-    end
+    attr_writer :image, :namespace, :worker_name, :command,
+      :container_name, :restart_policy, :job_labels, :pod_labels
 
     def image
       @image || raise_not_found_required_parameter('image')
-    end
-
-    def worker_name
-      @worker_name || raise_not_found_required_parameter('worker_name')
     end
 
     def namespace
       @namespace || 'default'
     end
 
-    def labels
-      (@labels || {}).merge(worker_name: worker_name, id: id)
+    def worker_name
+      @worker_name || raise_not_found_required_parameter('worker_name')
     end
 
     def container_name
       @container_name || @worker_name || raise_not_found_required_parameter('container_name')
     end
 
-    def template
-      @template || File.read(File.expand_path('../../../template/job.yaml', __FILE__))
+    def command
+      @command || ['bundle', 'exec', 'kube_queue', name]
     end
 
-    def to_manifest
-      YAML.safe_load(ERB.new(template, nil, "-").result(binding))
+    def restart_policy
+      @restart_policy || 'Never'
+    end
+
+    def job_labels
+      @job_labels || {}
+    end
+
+    def pod_labels
+      @pod_labels || {}
     end
 
     private

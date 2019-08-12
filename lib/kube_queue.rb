@@ -3,6 +3,7 @@ require "kube_queue/executor"
 require "kube_queue/configuration"
 require "kube_queue/worker"
 require "kube_queue/client"
+require "active_job/adapters/kube_queue_adapter"
 
 module KubeQueue
   class Error < StandardError; end

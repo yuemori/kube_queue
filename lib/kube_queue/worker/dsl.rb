@@ -1,44 +1,44 @@
 module KubeQueue
   module Worker
     module DSL
+      def job_spec
+        @job_spec ||= JobSpecification.new
+      end
+
       def worker_name(name)
-        @worker_name = name
+        job_spec.worker_name = name
       end
 
       def container_name(container_name)
-        @container_name = container_name
+        job_spec.container_name = container_name
       end
 
       def image(image)
-        @image = image
+        job_spec.image = image
       end
 
       def namespace(namespace)
-        @namespace = namespace
+        job_spec.namespace = namespace
       end
 
       def command(*command)
-        @command = command
-      end
-
-      def template(template)
-        @template = template
+        job_spec.command = command
       end
 
       def restart_policy(policy)
-        @restart_policy = policy
+        job_spec.restart_policy = policy
       end
 
       def active_deadline_seconds(seconds)
-        @active_deadline_seconds = seconds
+        job_spec.active_deadline_seconds = seconds
       end
 
       def backoff_limit(limit)
-        @backoff_limit = limit
+        job_spec.backoff_limit = limit
       end
 
       def labels(labels)
-        @labels = labels
+        job_spec.labels = labels
       end
     end
   end

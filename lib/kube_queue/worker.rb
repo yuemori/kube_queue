@@ -12,30 +12,49 @@ module KubeQueue
     module ClassMethods
       include DSL
 
-      def build_specification(body)
-        JobSpecification.new.configure do |s|
-          s.id = SecureRandom.uuid
-          s.labels = @labels
-          s.image = @image
-          s.name = name
-          s.namespace = @namespace
-          s.command = @command
-          s.worker_name = @worker_name
-          s.container_name = @container_name
-          s.template = @template
-          s.backoff_limit = @backoff_limit
-          s.active_deadline_seconds = @active_deadline_seconds
-          s.payload = JSON.generate(body, quirks_mode: true) if body
-        end
+      def enqueue(body = nil)
+        KubeQueue.executor.enqueue(new, body)
+      end
+      alias_method :perform_async, :enqueue
+
+      def enqueue_at(body = nil)
+        KubeQueue.executor.enqueue(new, body)
       end
 
-      def perform_sync(body)
-        new.perform(body)
+      def read_template
+        File.read(@template || File.expand_path('../../../template/job.yaml', __FILE__))
       end
+    end
 
-      def perform_async(body = nil)
-        KubeQueue.executor.perform_async(self, body)
+    def template
+      self.class.read_template
+    end
+
+    def job_spec
+      self.class.job_spec
+    end
+
+    attr_accessor :job_id, :arguments
+
+    def initialize(*arguments)
+      # for ActiveJob interface compatibility
+      if defined?(super)
+        super
+      else
+        @arguments = arguments
+        @job_id    = SecureRandom.uuid
       end
+    end
+
+    def perform_now
+      # for ActiveJob interface compatibility
+      return super if defined?(super)
+
+      perform(*arguments)
+    end
+
+    def perform(*)
+      raise NotImplementedError
     end
   end
 end

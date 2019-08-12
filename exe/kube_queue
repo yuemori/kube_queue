@@ -15,10 +15,11 @@ module KubeQueue
       load_files!
 
       payload ||= ENV['KUBE_QUEUE_MESSAGE_PAYLOAD']
+      payload = JSON.parse(payload) if payload
 
-      runner = Runner.new(job_name)
+      job = KubeQueue.fetch_worker(job_name).new(payload)
 
-      runner.run(payload)
+      job.perform_now
     end
 
     desc 'version', 'Prints version'

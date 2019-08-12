@@ -1,10 +1,9 @@
-require 'erb'
-require 'json'
+require 'kube_queue/manifest_builder'
 
 module KubeQueue
   class Executor
-    def perform_async(job, body)
-      manifest = job.build_specification(body)
+    def enqueue(job, payload)
+      manifest = ManifestBuilder.new(job, payload).build
       KubeQueue.client.create_job(manifest)
     end
   end
