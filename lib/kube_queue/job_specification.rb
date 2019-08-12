@@ -5,10 +5,21 @@ module KubeQueue
   class JobSpecification
     class MissingParameterError < StandardError; end
 
+
+    attr_reader :job_class
+
     attr_accessor :payload, :name, :active_deadline_seconds, :backoff_limit
 
     attr_writer :image, :namespace, :worker_name, :command,
       :container_name, :restart_policy, :job_labels, :pod_labels
+
+    def initialize(job_class)
+      @job_class = job_class
+    end
+
+    def job_name(job_id)
+      "#{worker_name}-#{job_id}"
+    end
 
     def image
       @image || raise_not_found_required_parameter('image')
@@ -23,11 +34,11 @@ module KubeQueue
     end
 
     def container_name
-      @container_name || @worker_name || raise_not_found_required_parameter('container_name')
+      @container_name || worker_name
     end
 
     def command
-      @command || ['bundle', 'exec', 'kube_queue', name]
+      @command || ['bundle', 'exec', 'kube_queue', 'runner', job_class.name]
     end
 
     def restart_policy
@@ -42,7 +53,9 @@ module KubeQueue
       @pod_labels || {}
     end
 
-    private
+    def env
+      KubeQueue.default_env.merge(@env || {})
+    end
 
     def raise_not_found_required_parameter(field)
       raise MissingParameterError, "#{field} is required"

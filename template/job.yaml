@@ -1,17 +1,17 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "<%= spec.worker_name %>-<%= job.job_id %>"
+  name: "<%= spec.job_name(job.job_id) %>"
   namespace: <%= spec.namespace %>
   labels:
     worker-name: "<%= spec.worker_name %>"
-    id: "<%= job.job_id %>"
+    job-id: "<%= job.job_id %>"
 spec:
   template:
     metadata:
       labels:
         worker-name: "<%= spec.worker_name %>"
-        id: "<%= job.job_id %>"
+        job-id: "<%= job.job_id %>"
 <%- spec.job_labels.each do |key, value| %>
         <%= key %>: "<%= value %>"
 <%- end %>
@@ -23,6 +23,10 @@ spec:
         env:
         - name: "KUBE_QUEUE_MESSAGE_PAYLOAD"
           value: '<%= payload %>'
+<%- spec.env.each do |key, value| %>
+        - name: "<%= key %>"
+          value: "<%= value %>"
+<%- end %>
       restartPolicy: "<%= spec.restart_policy %>"
   backoffLimit: <%= spec.backoff_limit %>
   activeDeadlineSeconds: <%= spec.active_deadline_seconds %>

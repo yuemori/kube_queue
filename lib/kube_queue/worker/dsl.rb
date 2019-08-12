@@ -2,7 +2,7 @@ module KubeQueue
   module Worker
     module DSL
       def job_spec
-        @job_spec ||= JobSpecification.new
+        @job_spec ||= JobSpecification.new(self)
       end
 
       def worker_name(name)
@@ -35,6 +35,10 @@ module KubeQueue
 
       def backoff_limit(limit)
         job_spec.backoff_limit = limit
+      end
+
+      def env(env)
+        job_spec.env = env
       end
 
       def labels(labels)

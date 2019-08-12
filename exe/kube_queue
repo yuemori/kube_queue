@@ -3,7 +3,6 @@
 require 'rubygems'
 require 'thor'
 require 'kube_queue'
-require 'kube_queue/runner'
 
 module KubeQueue
   class CLI < Thor
@@ -11,13 +10,20 @@ module KubeQueue
 
     desc 'runner JOB_NAME [PAYLOAD]', 'run worker'
     method_option :require, aliases: '-r', type: :string, desc: 'Location of Rails application with workers or file to require'
+    method_option :rails, aliases: '-R', type: :boolean, desc: 'Location of Rails application with workers or file to require'
     def runner(job_name, payload = nil)
       load_files!
 
+      # Infer application work on rails if require option does not specified.
+      load_rails! if !options[:require] || options[:rails]
+
       payload ||= ENV['KUBE_QUEUE_MESSAGE_PAYLOAD']
       payload = JSON.parse(payload) if payload
+      # Compatibility for ActiveJob serialized payload
+      payload = [payload] unless payload.is_a?(Array)
+      payload = ActiveJob::Arguments.deserialize(payload) if defined?(ActiveJob::Arguments)
 
-      job = KubeQueue.fetch_worker(job_name).new(payload)
+      job = KubeQueue.fetch_worker(job_name).new(*payload)
 
       job.perform_now
     end
@@ -39,6 +45,17 @@ module KubeQueue
       files.each do |file|
         require file
       end
+    end
+
+    def load_rails!
+      require "rails"
+
+      raise "KubeQueue does not supports this version of Rails" if ::Rails::VERSION::MAJOR < 5
+
+      require 'rails'
+      require 'kube_queue/railties'
+      require File.expand_path('config/environment.rb')
+      Rails.application.eager_load!
     end
   end
 end

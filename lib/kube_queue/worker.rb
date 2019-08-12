@@ -37,17 +37,15 @@ module KubeQueue
     attr_accessor :job_id, :arguments
 
     def initialize(*arguments)
-      # for ActiveJob interface compatibility
-      if defined?(super)
-        super
-      else
-        @arguments = arguments
-        @job_id    = SecureRandom.uuid
-      end
+      # Compatibility for ActiveJob interface
+      super
+
+      @arguments = arguments
+      @job_id    = SecureRandom.uuid
     end
 
     def perform_now
-      # for ActiveJob interface compatibility
+      # Compatibility for ActiveJob interface
       return super if defined?(super)
 
       perform(*arguments)

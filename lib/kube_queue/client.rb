@@ -9,8 +9,8 @@ module KubeQueue
       client.api('batch/v1').resource('jobs').create_resource(job)
     end
 
-    def list_job(namespace, selector)
-      client.api('batch/v1').resource('jobs', namespace: namespace).list(labelSelector: selector)
+    def get_job(namespace, name)
+      client.api('batch/v1').resource('jobs', namespace: namespace).get(name)
     end
 
     attr_accessor :url, :ssl_ca_file, :auth_token

@@ -3,7 +3,7 @@ require "kube_queue/executor"
 require "kube_queue/configuration"
 require "kube_queue/worker"
 require "kube_queue/client"
-require "active_job/adapters/kube_queue_adapter"
+require "active_job/adapters/kube_queue_adapter" if defined?(Rails)
 
 module KubeQueue
   class Error < StandardError; end
@@ -33,6 +33,19 @@ module KubeQueue
 
     def configuration
       @configuration ||= Configuration.new
+    end
+
+    attr_writer :default_env
+
+    def default_env
+      return @default_env if @default_env
+
+      return {} unless defined?(Rails)
+
+      {
+        RAILS_LOG_TO_STDOUT: ENV['RAILS_LOG_TO_STDOUT'],
+        RAILS_ENV: ENV['RAILS_ENV']
+      }
     end
 
     def fetch_worker(name)
