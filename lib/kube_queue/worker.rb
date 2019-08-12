@@ -24,13 +24,6 @@ module KubeQueue
       def read_template
         File.read(@template || File.expand_path('../../../template/job.yaml', __FILE__))
       end
-
-      def status(job_id)
-        res = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
-        res.status
-      rescue K8s::Error::NotFound
-        nil
-      end
     end
 
     def template
@@ -62,8 +55,10 @@ module KubeQueue
       raise NotImplementedError
     end
 
+    # FIXME: improve performance
     def status
-      self.class.status(job_id)
+      res = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
+      res.status
     end
   end
 end

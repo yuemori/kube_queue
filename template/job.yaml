@@ -1,17 +1,29 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
+  annotations:
+    kube-queue-message-payload: '<%= payload %>'
+    kube-queue-job-class: "<%= spec.job_class %>"
+    kube-queue-job-id: "<%= job.job_id %>"
   name: "<%= spec.job_name(job.job_id) %>"
   namespace: <%= spec.namespace %>
   labels:
-    worker-name: "<%= spec.worker_name %>"
-    job-id: "<%= job.job_id %>"
+    kube-queue-job: "true"
+    kube-queue-worker-name: "<%= spec.worker_name %>"
+    kube-queue-job-class: "<%= spec.job_class %>"
+    kube-queue-job-id: "<%= job.job_id %>"
 spec:
   template:
     metadata:
+      annotations:
+        kube-queue-message-payload: '<%= payload %>'
+        kube-queue-job-class: "<%= spec.job_class %>"
+        kube-queue-job-id: "<%= job.job_id %>"
       labels:
-        worker-name: "<%= spec.worker_name %>"
-        job-id: "<%= job.job_id %>"
+        kube-queue-job: "true"
+        kube-queue-worker-name: "<%= spec.worker_name %>"
+        kube-queue-job-class: "<%= spec.job_class %>"
+        kube-queue-job-id: "<%= job.job_id %>"
 <%- spec.job_labels.each do |key, value| %>
         <%= key %>: "<%= value %>"
 <%- end %>
