@@ -1,5 +1,9 @@
-images: ['gcr.io/$PROJECT_ID/kube-queue:latest']
+images: ['gcr.io/$PROJECT_ID/kube-queue:latest', 'gcr.io/$PROJECT_ID/kube-queue-test-app:latest']
 
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-f', '/workspace/Dockerfile', '/workspace', '-t', 'gcr.io/$PROJECT_ID/kube-queue:latest']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-f', '/workspace/Dockerfile.myapp', '/workspace', '-t', 'gcr.io/$PROJECT_ID/kube-queue-test-app:latest']
+  waitFor: ['-']

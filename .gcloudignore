@@ -1,1 +1,4 @@
 !.git
+secrets
+examples/myapp/tmp/*
+examples/myapp/log/*
