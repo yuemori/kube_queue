@@ -89,7 +89,7 @@ irb(main):003:0> job.status
 => #<K8s::Resource conditions=[{:type=>"Complete", :status=>"True", :lastProbeTime=>"2019-08-12T15:57:03Z", :lastTransitionTime=>"2019-08-12T15:57:03Z"}], startTime="2019-08-12T15:56:37Z", completionTime="2019-08-12T15:57:03Z", succeeded=1>
 ```
 
-See more examples in [here](examples).
+See more examples in [here](examples/myapp/app/jobs).
 
 ### Run job on locally
 
