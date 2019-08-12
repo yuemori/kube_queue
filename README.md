@@ -36,15 +36,19 @@ class TestWorker
 end
 ```
 
-Setting kubernetes configuration and run:
+Setting kubernetes configuration.
 
-```
+```ruby
 KubeQueue.kubernetes_configure do |client|
   client.url = ENV['K8S_URL']
   client.ssl_ca_file = ENV['K8S_CA_CERT_FILE']
   client.auth_token = File.read(ENV['K8S_TOKEN'])
 end
+```
 
+and run:
+
+```ruby
 TestWorker.perform(message: 'hello')
 ```
 
@@ -86,6 +90,14 @@ irb(main):003:0> job.status
 ```
 
 See more examples in [here](examples).
+
+### Run job on locally
+
+```
+bundle exec kube_queue runner JOB_NAME [PAYLOAD]
+```
+
+See more information by `kube_queue help` or [here](exe/kube_queue).
 
 ## Features
 
