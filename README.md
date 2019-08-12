@@ -62,7 +62,7 @@ setup:
 
 ```
 # create service account and cluster role.
-kubectl apply -f k8s/service-account.yaml
+kubectl apply -f examples/k8s/service-account.yaml
 
 # get ca.crt and token
 < k get secret -n kube-system kube-queue-test-token-xxx -o jsonpath="{['data']['token']}" | base64 -d > secrets/token

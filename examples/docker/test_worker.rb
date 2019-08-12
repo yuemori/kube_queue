@@ -4,7 +4,7 @@ class TestWorker
   include KubeQueue::Worker
 
   worker_name 'kube-queue-test'
-  image ENV['IMAGE_NAME']
+  image "gcr.io/#{ENV['PROJECT_ID']}/kube-queue"
   container_name 'kube-queue-test'
   command 'bundle', 'exec', 'kube_queue', 'runner', 'TestWorker', '-r', './test_worker.rb'
 
