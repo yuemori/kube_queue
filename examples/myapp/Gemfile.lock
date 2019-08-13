@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    kube_queue (0.2.0)
+    kube_queue (0.3.0)
       k8s-client
       thor
 
@@ -72,6 +72,7 @@ GEM
     chromedriver-helper (2.1.1)
       archive-zip (~> 0.10)
       nokogiri (~> 1.8)
+    coderay (1.1.2)
     coffee-rails (4.2.2)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0)
@@ -132,6 +133,18 @@ GEM
       recursive-open-struct (~> 1.1.0)
       yajl-ruby (~> 1.4.0)
       yaml-safe_load_stream (~> 0.1)
+    kaminari (1.1.1)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.1.1)
+      kaminari-activerecord (= 1.1.1)
+      kaminari-core (= 1.1.1)
+    kaminari-actionview (1.1.1)
+      actionview
+      kaminari-core (= 1.1.1)
+    kaminari-activerecord (1.1.1)
+      activerecord
+      kaminari-core (= 1.1.1)
+    kaminari-core (1.1.1)
     libv8 (7.3.492.27.1)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
@@ -153,9 +166,18 @@ GEM
     minitest (5.11.3)
     msgpack (1.3.1)
     multi_json (1.13.1)
+    mysql2 (0.5.2)
     nio4r (2.4.0)
     nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
+    pry (0.12.2)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    pry-byebug (3.7.0)
+      byebug (~> 11.0)
+      pry (~> 0.10)
+    pry-rails (0.3.9)
+      pry (>= 0.10.4)
     public_suffix (3.1.1)
     puma (3.12.1)
     rack (2.0.7)
@@ -218,7 +240,6 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sqlite3 (1.4.1)
     thor (0.20.3)
     thread_safe (0.3.6)
     tilt (2.0.9)
@@ -253,18 +274,20 @@ DEPENDENCIES
   chromedriver-helper
   coffee-rails (~> 4.2)
   jbuilder (~> 2.5)
+  kaminari
   kube_queue!
   listen (>= 3.0.5, < 3.2)
   mini_racer
+  mysql2
+  pry-byebug
+  pry-rails
   puma (~> 3.11)
   rails (~> 5.2.3)
   sass-rails (~> 5.0)
   selenium-webdriver
   spring
   spring-watcher-listen (~> 2.0.0)
-  sqlite3
   turbolinks (~> 5)
-  tzinfo-data
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
 
