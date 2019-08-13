@@ -1,0 +1,10 @@
+<%= form_with(url: task_import_path, local: true) do |form| %>
+  <div class="field">
+    <%= form.label :upload_file %>
+    <%= form.file_field :upload_file %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit 'import CSV' %>
+  </div>
+<% end %>

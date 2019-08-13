@@ -1,4 +1,7 @@
 <p id="notice"><%= notice %></p>
+<% if alert %>
+<p id="error_explanation"><%= alert %></p>
+<% end %>
 
 <h1>Tasks</h1>
 
@@ -27,5 +30,7 @@
 <br>
 
 <%= paginate @tasks %>
+
+<%= render 'import_form' %>
 
 <%= link_to 'New Task', new_task_path %>
