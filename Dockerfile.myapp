@@ -17,6 +17,9 @@ COPY examples/myapp/Gemfile examples/myapp/Gemfile.lock $WORKDIR/
 RUN bundle install -j4
 
 COPY lib $KUBE_QUEUE_PATH/lib
+COPY template $KUBE_QUEUE_PATH/template
 COPY examples/myapp/ $WORKDIR
+
+RUN bundle exec rails assets:precompile
 
 CMD ["bundle", "exec", "rails", "console"]

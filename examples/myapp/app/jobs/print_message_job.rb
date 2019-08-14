@@ -1,7 +1,7 @@
 class PrintMessageJob < ApplicationJob
   include KubeQueue::Worker
 
-  worker_name 'print-message-job'
+  worker_name 'print-message'
   image "gcr.io/#{ENV['PROJECT_ID']}/kube-queue-test-app"
   container_name 'kube-queue-test-app'
 

@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-queue-test-app
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-queue-test-app
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kube-queue-test-app
+  namespace: default
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myapp
+  namespace: default
+data:
+  DATABASE_URL: bXlzcWwyOi8vcm9vdEBkYXRhYmFzZTozMzA2
+  SECRET_KEY_BASE: ZTkxMzUzYzcwZTYyMzUwZTJmMTE1YWVkNjlmNjhhNWQ0MjhiMjkyMzM3ZTdlOWIxYmIwMzRhY2Y5ZDZlYTA4YjQ5OTE1NmU1MGQxNWRlNjZkYTQ2YTAwYzFhZmQwNzNhM2ZiNzRmNzIwMTFiZThiYjliYThlNjliZWRiMTc3NjE=
+type: Opaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myapp
+  namespace: default
+data:
+  K8S_URL: https://kubernetes.default:443
+  K8S_BEARER_TOKEN_FILE: /var/run/secrets/kubernetes.io/serviceaccount/token
+  K8S_CA_CERT_FILE: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  PROJECT_ID: savvy-temple-184102
+  LANG: C.UTF-8
+  LOG_LEVEL: DEBUG
+  RAILS_ENV: production
+  RAILS_LOG_TO_STDOUT: "true"
+  RAILS_SERVE_STATIC_FILES: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+  - name: myapp
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: myapp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      name: myapp
+      labels:
+        app: myapp
+    spec:
+      serviceAccountName: kube-queue-test-app
+      initContainers:
+      - name: myapp-migration
+        image: 'gcr.io/savvy-temple-184102/kube-queue-test-app'
+        command: ["bundle", "exec", "rails", "db:create", "db:migrate"]
+        envFrom:
+        - configMapRef:
+            name: myapp
+        - secretRef:
+            name: myapp
+      containers:
+      - name: myapp
+        image: 'gcr.io/savvy-temple-184102/kube-queue-test-app'
+        command: ["bundle", "exec", "rails", "server"]
+        envFrom:
+        - configMapRef:
+            name: myapp
+        - secretRef:
+            name: myapp
+        ports:
+        - containerPort: 3000

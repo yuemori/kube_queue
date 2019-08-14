@@ -1,13 +1,18 @@
 class ImportTaskJob < ApplicationJob
   include KubeQueue::Worker
 
-  worker_name 'print-message-job'
+  worker_name 'import-task'
   image "gcr.io/#{ENV['PROJECT_ID']}/kube-queue-test-app"
   container_name 'kube-queue-test-app'
 
-  def perform(tasks)
+  env_from_secret 'myapp'
+  env_from_config_map 'myapp'
+
+  def perform(csv)
     Task.transaction do
-      tasks.each(&:save!)
+      csv.each do |row|
+        Task.create!(name: row[0], state: row[1])
+      end
     end
   end
 end

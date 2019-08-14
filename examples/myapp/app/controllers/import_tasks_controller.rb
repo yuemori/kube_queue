@@ -10,11 +10,9 @@ class ImportTasksController < ApplicationController
   def create
     file = params[:upload_file]
 
-    tasks = CSV.parse(file.read).map do |row|
-      Task.new(name: row[0], state: row[1])
-    end
+    csv = CSV.parse(file.read)
 
-    ImportTaskJob.perform_later(tasks)
+    ImportTaskJob.perform_later(csv)
 
     respond_to do |format|
       format.html { redirect_to({ controller: :tasks, action: :index }, notice: 'Task import was successfully started.') }
