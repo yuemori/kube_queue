@@ -12,6 +12,37 @@ module KubeQueue
     module ClassMethods
       include DSL
 
+      def list
+        namespace = job_spec.namespace
+
+        KubeQueue.client.list_job(job_spec.job_class, namespace).map do |res|
+          worker = KubeQueue.fetch_worker(res.metadata.annotations['kube-queue-job-class'])
+          job_id = res.metadata.annotations['kube-queue-job-id']
+          payload = deserialize_annotation_payload(res.metadata.annotations['kube-queue-message-payload'])
+
+          job = worker.new(*payload)
+          job.job_id = job_id
+          job.resource = res
+          job
+        end
+      end
+
+      def find(job_id)
+        namespace = job_spec.namespace
+
+        name = job_spec.job_name(job_id)
+
+        res = KubeQueue.client.get_job(name, namespace)
+        worker = KubeQueue.fetch_worker(res.metadata.annotations['kube-queue-job-class'])
+        job_id = res.metadata.annotations['kube-queue-job-id']
+        payload = deserialize_annotation_payload(res.metadata.annotations['kube-queue-message-payload'])
+
+        job = worker.new(*payload)
+        job.job_id = job_id
+        job.resource = res
+        job
+      end
+
       def enqueue(body = nil)
         KubeQueue.executor.enqueue(new, body)
       end
@@ -24,6 +55,30 @@ module KubeQueue
       def read_template
         File.read(@template || File.expand_path('../../../template/job.yaml', __FILE__))
       end
+
+      private
+
+      def deserialize_annotation_payload(payload)
+        return payload if payload.empty?
+
+        payload = JSON.parse(payload)
+        # Compatibility for ActiveJob serialized payload
+        payload = [payload] unless payload.is_a?(Array)
+
+        if defined?(ActiveJob::Arguments)
+          begin
+            payload = ActiveJob::Arguments.deserialize(payload)
+          rescue ActiveJob::DeserializationError => e
+            logger.warn e.message
+            logger.warn "#{payload} can not deserialized"
+          end
+        end
+
+        payload
+      rescue JSON::ParseError => e
+        logger.warn e.message
+        logger.warn "#{payload} can not deserialized"
+      end
     end
 
     def template
@@ -34,7 +89,7 @@ module KubeQueue
       self.class.job_spec
     end
 
-    attr_accessor :job_id, :arguments
+    attr_accessor :job_id, :arguments, :resource
 
     def initialize(*arguments)
       # Compatibility for ActiveJob interface
@@ -42,6 +97,7 @@ module KubeQueue
 
       @arguments = arguments
       @job_id    = SecureRandom.uuid
+      @loaded    = false
     end
 
     def perform_now
@@ -57,8 +113,29 @@ module KubeQueue
 
     # FIXME: improve performance
     def status
-      res = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
-      res.status
+      return @resource.status if loaded?
+
+      load_target
+
+      @resource.status
+    end
+
+    def loaded?
+      @loaded
+    end
+
+    def reload!
+      @loaded = false
+      @resource = nil
+
+      load_target
+    end
+
+    private
+
+    def load_target
+      @rsource = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
+      @loaded = true
     end
   end
 end

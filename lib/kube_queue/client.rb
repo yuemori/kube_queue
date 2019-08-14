@@ -13,8 +13,8 @@ module KubeQueue
       client.resource('jobs', namespace: namespace).get(name)
     end
 
-    def list_job(namespace = nil)
-      selector = { 'kube-queue-job': 'true' }
+    def list_job(job_class, namespace = nil)
+      selector = { 'kube-queue-job': 'true', 'kube-queue-job-class': job_class }
       client.resource('jobs', namespace: namespace).list(labelSelector: selector)
     end
 
