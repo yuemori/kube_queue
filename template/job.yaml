@@ -39,6 +39,17 @@ spec:
         - name: "<%= key %>"
           value: "<%= value %>"
 <%- end %>
+<%- if spec.env_from_exists? %>
+        envFrom:
+  <%- spec.env_from_config_map.each do |name| %>
+        - configMapRef:
+            name: "<%= name %>"
+  <%- end %>
+  <%- spec.env_from_secret.each do |name| %>
+        - secretRef:
+            name: "<%= name %>"
+  <%- end %>
+<%- end %>
       restartPolicy: "<%= spec.restart_policy %>"
   backoffLimit: <%= spec.backoff_limit %>
   activeDeadlineSeconds: <%= spec.active_deadline_seconds %>

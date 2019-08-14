@@ -5,13 +5,13 @@ module KubeQueue
   class JobSpecification
     class MissingParameterError < StandardError; end
 
-
     attr_reader :job_class
 
     attr_accessor :payload, :name, :active_deadline_seconds, :backoff_limit
 
     attr_writer :image, :namespace, :worker_name, :command,
-      :container_name, :restart_policy, :job_labels, :pod_labels
+      :container_name, :restart_policy, :job_labels, :pod_labels,
+      :env_from_config_map, :env_from_secret
 
     def initialize(job_class)
       @job_class = job_class
@@ -55,6 +55,18 @@ module KubeQueue
 
     def env
       KubeQueue.default_env.merge(@env || {})
+    end
+
+    def env_from_config_map
+      @env_from_config_map || []
+    end
+
+    def env_from_secret
+      @env_from_config_map || []
+    end
+
+    def env_from_exists?
+      !env_from_config_map.empty? && !env_from_secret.empty?
     end
 
     def raise_not_found_required_parameter(field)

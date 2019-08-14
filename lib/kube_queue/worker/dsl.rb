@@ -44,6 +44,14 @@ module KubeQueue
       def labels(labels)
         job_spec.labels = labels
       end
+
+      def env_from_config_map(*config_map_names)
+        job_spec.env_from_config_map = config_map_names
+      end
+
+      def env_from_secret(*secret_names)
+        job_spec.env_from_config_map = secret_names
+      end
     end
   end
 end
