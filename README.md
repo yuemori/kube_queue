@@ -49,7 +49,10 @@ end
 and run:
 
 ```ruby
-TestWorker.perform(message: 'hello')
+TestWorker.enqueue(message: 'hello')
+
+# delay
+TestWorker.enqueue_at(message: 'hello', Time.now + 100)
 ```
 
 ### ActiveJob Support
@@ -97,13 +100,113 @@ See more examples in [here](examples/myapp/app/jobs).
 bundle exec kube_queue runner JOB_NAME [PAYLOAD]
 ```
 
-See more information by `kube_queue help` or [here](exe/kube_queue).
+See more information by `kube_queue help` or read [here](exe/kube_queue).
+
+## Advanced Tips
+
+### Get a job status
+
+```ruby
+job = ComputePiJob.perform_later
+job.status
+```
+
+scheduled job dosent supported now.
+
+### Check a generating manifest
+
+```ruby
+# from class
+puts ComputePiJob.manifest
+
+# from instance
+job = ComputePiJob.perform_later
+puts job.manifest
+```
+
+### Retry job
+
+Kubernetes Job has a own retry mechanism, if set backoff_limit and/or restart_policy to use it.
+
+```ruby
+class ComputePiJob
+  include KubeQueue::Worker
+
+  worker_name 'pi'
+  image 'perl'
+  container_name 'pi'
+  command "perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"
+
+  backoff_limit 10
+  restart_policy 'Never'
+end
+```
+
+More information, see the official document [here](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/#pod-backoff-failure-policy).
+
+### Timeout
+
+Kubernetes Job has a own timeout mechanism, if set the active_deadline_seconds to use it.
+
+```ruby
+class ComputePiJob
+  include KubeQueue::Worker
+
+  worker_name 'pi'
+  image 'perl'
+  container_name 'pi'
+  command "perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"
+
+  active_deadline_seconds 300
+end
+```
+
+More information, see the official document [here](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/#job-termination-and-cleanup).
+
+### Managing container resources
+
+When you specify a Pod, you can optional specify hou much CPU and memory container needs.
+
+```ruby
+class ComputePiJob
+  include KubeQueue::Worker
+
+  worker_name 'pi'
+  image 'perl'
+  container_name 'pi'
+  command "perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"
+
+  cpu_limit '0.3'
+  cpu_request '0.2'
+  memory_limit '100m'
+  memory_request '50m'
+end
+```
+
+More information, see the official document [here](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/).
+
+### Use environment variable from ConfigMap/Secret
+
+```ruby
+class ComputePiJob
+  include KubeQueue::Worker
+
+  worker_name 'pi'
+  image 'perl'
+  container_name 'pi'
+  command "perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"
+
+  env_from_secret 'mysecret1', 'mysecret2'
+  env_from_config_map 'myapp'
+end
+```
 
 ## Features
 
 - Add tests.
 - Support multiple kubernetes client configuration.
 - Logging informations.
+- Support to get CronJob status.
 
 ## Development(on GCP/GKE)
 
@@ -126,5 +229,5 @@ run:
 ```
 K8S_URL=https://xx.xxx.xxx.xxx K8S_CA_CERT_FILE=$(pwd)/secrets/ca.crt K8S_TOKEN=$(pwd)/secrets/token IMAGE_NAME=gcr.io/your-project/kube-queue bin/console
 
-irb(main):001:0> TestWorker.perform_async(message: 'hello, kubernetes!')
+irb(main):001:0> TestWorker.enqueue(message: 'hello, kubernetes!')
 ```
