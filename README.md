@@ -1,5 +1,7 @@
 # KubeQueue
 
+[![Build Status](https://travis-ci.org/yuemori/kube_queue.svg?branch=master)](https://travis-ci.org/yuemori/kube_queue)
+
 ## Installation
 
 Add this line to your application's Gemfile:
