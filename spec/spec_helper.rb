@@ -3,7 +3,6 @@ $LOAD_PATH << File.expand_path(__dir__)
 require "bundler/setup"
 require "kube_queue"
 
-require 'hash_modern_inspect'
 require 'erbh'
 
 require_relative './workers'
