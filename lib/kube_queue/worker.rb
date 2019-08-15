@@ -17,11 +17,7 @@ module KubeQueue
 
         KubeQueue.client.list_job(job_spec.job_class, namespace).map do |res|
           worker = KubeQueue.fetch_worker(res.metadata.annotations['kube-queue-job-class'])
-          job_id = res.metadata.annotations['kube-queue-job-id']
-          payload = deserialize_annotation_payload(res.metadata.annotations['kube-queue-message-payload'])
-
           job = worker.new(*payload)
-          job.job_id = job_id
           job.resource = res
           job
         end
@@ -34,11 +30,10 @@ module KubeQueue
 
         res = KubeQueue.client.get_job(name, namespace)
         worker = KubeQueue.fetch_worker(res.metadata.annotations['kube-queue-job-class'])
-        job_id = res.metadata.annotations['kube-queue-job-id']
-        payload = deserialize_annotation_payload(res.metadata.annotations['kube-queue-message-payload'])
+
+        payload = deserialize_annotation_payload(res.annotations['kube-queue-job-payload'])
 
         job = worker.new(*payload)
-        job.job_id = job_id
         job.resource = res
         job
       end
@@ -54,6 +49,10 @@ module KubeQueue
 
       def read_template
         File.read(@template || File.expand_path('../../../template/job.yaml', __FILE__))
+      end
+
+      def manifest
+        new.manifest
       end
 
       private
@@ -81,7 +80,7 @@ module KubeQueue
       end
     end
 
-    def template
+    def read_template
       self.class.read_template
     end
 
@@ -89,11 +88,18 @@ module KubeQueue
       self.class.job_spec
     end
 
-    attr_accessor :job_id, :arguments, :resource
+    attr_accessor :job_id, :scheduled_at
+    attr_reader :arguments, :resource
+
+    alias_method :payload, :arguments
 
     def initialize(*arguments)
       # Compatibility for ActiveJob interface
-      super
+      if method(__method__).super_method.arity.zero?
+        super()
+      else
+        super
+      end
 
       @arguments = arguments
       @job_id    = SecureRandom.uuid
@@ -131,10 +137,32 @@ module KubeQueue
       load_target
     end
 
+    def manifest
+      if scheduled_at
+        cron = Time.at(scheduled_at).utc.strftime("%M %H %d %m %w")
+        ManifestBuilder.new(self).build_cron_job(cron)
+      else
+        ManifestBuilder.new(self).build_job
+      end
+    end
+
+    def serialized_payload
+      if defined?(ActiveJob::Arguments)
+        ActiveJob::Arguments.serialize(arguments)
+      else
+        arguments
+      end
+    end
+
+    def resource=(resource)
+      @resource = resource
+      self.job_id = resource.metadata.annotations['kube-queue-job-id']
+    end
+
     private
 
     def load_target
-      @resource = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
+      self.resource = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
       @loaded = true
     end
   end

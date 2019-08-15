@@ -5,9 +5,8 @@ module KubeQueue
   class ManifestBuilder
     attr_reader :job
 
-    def initialize(job, payload = nil)
+    def initialize(job)
       @job = job
-      @payload = payload
     end
 
     def spec
@@ -15,15 +14,15 @@ module KubeQueue
     end
 
     def payload
-      @payload ? JSON.generate(@payload, quirks_mode: true) : nil
+      JSON.generate(job.serialized_payload, quirks_mode: true)
     end
 
     def build_job
-      YAML.safe_load(ERB.new(job.template, nil, "-").result(binding))
+      YAML.safe_load(ERB.new(job.read_template, nil, "-").result(binding))
     end
 
     def build_cron_job(cron)
-      template = YAML.safe_load(ERB.new(job.template, nil, "-").result(binding))
+      template = YAML.safe_load(ERB.new(job.read_template, nil, "-").result(binding))
 
       {
         apiVersion: "batch/v1beta1",

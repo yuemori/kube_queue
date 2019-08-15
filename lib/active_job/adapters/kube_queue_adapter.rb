@@ -10,11 +10,12 @@ module ActiveJob
       class << self
         # Interface for ActiveJob 4.2
         def enqueue(job)
-          KubeQueue.executor.enqueue(job, ActiveJob::Arguments.serialize(job.arguments))
+          KubeQueue.executor.enqueue(job)
         end
 
         def enqueue_at(job, timestamp)
-          KubeQueue.executor.enqueue_at(job, ActiveJob::Arguments.serialize(job.arguments), timestamp)
+          job.scheduled_at = timestamp
+          KubeQueue.executor.enqueue(job)
         end
       end
 
@@ -24,7 +25,8 @@ module ActiveJob
       end
 
       def enqueue_at(job, timestamp)
-        KubeQueueAdapter.enqueue_at(job, timestamp)
+        job.scheduled_at = timestamp
+        KubeQueueAdapter.enqueue(job)
       end
     end
   end
