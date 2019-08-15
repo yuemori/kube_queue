@@ -20,7 +20,7 @@ RSpec.describe KubeQueue::Worker do
     subject(:job) { PrintMessageJob.enqueue_at(arg, timestamp) }
 
     let(:arg) { { message: 'hello' } }
-    let(:timestamp) { Time.utc(2019, 8, 15, 18, 30).to_i }
+    let(:timestamp) { Time.utc(2019, 8, 15, 18, 30, 0).to_i }
 
     before do
       expect_any_instance_of(PrintMessageJob).to receive(:perform).with(arg)
@@ -33,7 +33,7 @@ RSpec.describe KubeQueue::Worker do
     it { expect(job.resource.spec.schedule).to eq "30 18 15 08 4" }
 
     context 'when given timezone is not utc' do
-      let(:timestamp) { Time.new(2019, 8, 15, 18, 30, "+09:00").to_i }
+      let(:timestamp) { Time.new(2019, 8, 15, 18, 30, 0, "+09:00").to_i }
 
       it { expect(job.resource.spec.schedule).to eq "30 09 15 08 4" }
     end
