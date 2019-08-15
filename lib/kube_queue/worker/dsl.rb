@@ -52,6 +52,14 @@ module KubeQueue
       def env_from_secret(*secret_names)
         job_spec.env_from_config_map = secret_names
       end
+
+      def starting_deadline_seconds(seconds)
+        job_spec.starting_deadline_seconds = seconds
+      end
+
+      def concurrent_policy(policy)
+        job_spec.concurrent_policy = policy
+      end
     end
   end
 end

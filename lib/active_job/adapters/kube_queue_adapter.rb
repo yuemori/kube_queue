@@ -13,8 +13,8 @@ module ActiveJob
           KubeQueue.executor.enqueue(job, ActiveJob::Arguments.serialize(job.arguments))
         end
 
-        def enqueue_at(_job, _timestamp)
-          raise NotImplementedError
+        def enqueue_at(job, timestamp)
+          KubeQueue.executor.enqueue_at(job, ActiveJob::Arguments.serialize(job.arguments), timestamp)
         end
       end
 

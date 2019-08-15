@@ -48,8 +48,8 @@ module KubeQueue
       end
       alias_method :perform_async, :enqueue
 
-      def enqueue_at(body = nil)
-        KubeQueue.executor.enqueue(new, body)
+      def enqueue_at(body, timestamp)
+        KubeQueue.executor.enqueue_at(new, body, timestamp)
       end
 
       def read_template

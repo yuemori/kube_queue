@@ -7,11 +7,11 @@ module KubeQueue
 
     attr_reader :job_class
 
-    attr_accessor :payload, :name, :active_deadline_seconds, :backoff_limit
+    attr_accessor :payload, :name, :active_deadline_seconds, :backoff_limit, :starting_deadline_seconds
 
     attr_writer :image, :namespace, :worker_name, :command,
       :container_name, :restart_policy, :job_labels, :pod_labels,
-      :env_from_config_map, :env_from_secret
+      :env_from_config_map, :env_from_secret, :concurrent_policy
 
     def initialize(job_class)
       @job_class = job_class
@@ -67,6 +67,10 @@ module KubeQueue
 
     def env_from_exists?
       !env_from_config_map.empty? && !env_from_secret.empty?
+    end
+
+    def concurrent_policy
+      @concurrent_policy || 'Allow'
     end
 
     def raise_not_found_required_parameter(field)
