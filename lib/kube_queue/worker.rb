@@ -12,6 +12,10 @@ module KubeQueue
     module ClassMethods
       include DSL
 
+      def active_job?
+        defined?(ActiveJob) && ancestors.include?(ActiveJob::Base)
+      end
+
       def list
         namespace = job_spec.namespace
 
@@ -154,7 +158,7 @@ module KubeQueue
     end
 
     def serialized_payload
-      if defined?(ActiveJob::Arguments)
+      if self.class.active_job?
         ActiveJob::Arguments.serialize(arguments)
       else
         arguments
