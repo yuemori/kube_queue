@@ -9,6 +9,7 @@ AllCops:
   - examples/**/*
   - kube_queue.gemspec
   - Guardfile
+  - vendor/**/*
   DisplayCopNames: true
 
 Gemspec/OrderedDependencies:

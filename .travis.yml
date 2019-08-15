@@ -4,18 +4,22 @@ cache: bundler
 rvm:
 - 2.4.5
 - 2.6.3
+- ruby-head
 branches:
   only:
   - master
 before_install: gem install bundler -v 2.0.2
 script:
 - bundle exec rubocop
-- bundle exec ruby spec/performance_test.rb
 - bundle exec rspec
 gem_files:
 - gemfiles/rails_5.1.gemfile
 - gemfiles/rails_5.2.gemfile
 - gemfiles/rails_6.0.gemfile
+matrix:
+  allow_failures:
+  - rvm: ruby-head
+  fast_finish: true
 notifications:
   slack:
     secure: lLif9Qe+rAXJxsGjcPzCyPYy0ZPRXohPe5VRERLydjyWPKB/h3F59l6TbIL6nE0jH83mE+Qmna+KiVOhBI2qv17qHLGK6DdOv9+ECewB9vi+oexN0CQLTIAzSxn+tKMU28JDduiY/z2HATf5wG0U6QjvvL3kPh9jfbIkHGhxVNe6iaFMTwO3ardWT/oqgf4BL+glY2J8GnKELEErL99aZDb2F87HqtVXiuapjvJkex4H81/cPRoypNueNUc3Wiv60dRl0ZQfEElPhZZPCD2wZJBe0O773aumJ2hmkykZ984sAf3/5qqaumk8N7TYeIb6D9quVY1q5ePONv2KkJSnV21Zj4QfdsVw3+rt5PyHyNAtNg29KgbMERa2jRhxE8vOf3QcDsSqCmkalpM9UL9OZl5hIc5/v/Mb2VEQaIlXmfI24eENBHOOZeVXCc6Lx/XFSpAsW2y/tCHfqNa1kdUWFceC9XX1fQKcHQc6DWCbTWvSGYvpWuR1AfOxPLzC3wBUN9Z3HBE+12Gkx8/PjKXpd7BTdFwjgRNMeFXTtHjmsDkBMspdGWMZ0fGxv5P7Zf/ODOwhu30zEdR1AxXliloDE7N8EV3JvB6kg+uVtJ6HOjeTPvMium+UVNIJ7dvUplMEnpGwlT4SammEaR9HNT+NhrutgsrkGd+0XmNE0aBLgdA=
