@@ -3,5 +3,23 @@ sudo: false
 language: ruby
 cache: bundler
 rvm:
-  - 2.4.1
+- 2.4.5
+- 2.6.3
+branches:
+  only:
+  - master
 before_install: gem install bundler -v 2.0.2
+cache: bundler
+script:
+- bundle exec rubocop
+- bundle exec ruby spec/performance_test.rb
+- bundle exec rspec
+gem_files:
+- gemfiles/rails_5.1.gemfile
+- gemfiles/rails_5.2.gemfile
+- gemfiles/rails_6.0.gemfile
+notifications:
+  slack:
+    secure: ZMUll61xm3+DRkxKYdStbDwEHemHDZ3bQBx4N6+IdeOkAJl0xlnPwbGfAirauXZiiM/WN9wMp3p0x8M74br4DAoUAiKuHZMBwNnj1lbHqdzpE1C2Pkw1VDNrqzYeGFC46loqQmc5f0sinNyEDIxfnJGdvw5EId7on3V5vfPm0ScCzg9XbjBH+HETVsGaBPXjMUV1RemOMzW0v27Kx1X1ooqbtWe17/8EdKnByc4j6C0ciMx0i3XX1l3Dh5yFwkpYz+kxdN6ryCyswAIbvgxEI4T74KtVJaSiVnhKX37dMjDNDvL6Xgdu2QwIy51D7Aj0+NLvEVMiz6cTpLnHOCtH/bObBwMFpN2jdSMyPD01stKKf2PyqsA9Bvflbc4dhSqvv+dtMEJaHrvGnxkkf/4ZDCdG6HDLnSv5fOanxW90TnADlSA0ceZUBbOwfJapDJslAgnBVsmgrPut1fbHRbMsyKJmvpBqNl8s5E46GvAJh/1HpqmEr4dt6WCJPMvsByHBHQAeSVZy627z9kNTGHusriJNeKouh7XsLxGnutp/jEVUion8+g7gLFci5iZLS9QB2CsFsxI8a5rBGl4S+B9BO0UPs/oGCJnIsk4AFcoSrHBk+T3Ms1RGfTk+3mfb2r5w9KN42D9hD244SNkQ8+uZYVyRXPPlFFwbSCdMBUi4ly4=
+    on_success: change
+    on_failure: always
