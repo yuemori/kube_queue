@@ -124,7 +124,6 @@ module KubeQueue
       raise NotImplementedError
     end
 
-    # FIXME: improve performance
     def status
       return @resource.status if loaded?
 
@@ -146,6 +145,7 @@ module KubeQueue
 
     def manifest
       if scheduled_at
+        # Kubernetes CronJob does not support timezone
         cron = Time.at(scheduled_at).utc.strftime("%M %H %d %m %w")
         ManifestBuilder.new(self).build_cron_job(cron)
       else

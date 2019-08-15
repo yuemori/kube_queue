@@ -5,7 +5,8 @@ require "kube_queue"
 
 require 'hash_modern_inspect'
 require 'erbh'
-require 'erb_helper'
+
+require_relative './workers'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

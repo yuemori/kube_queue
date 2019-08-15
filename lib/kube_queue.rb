@@ -9,7 +9,7 @@ module KubeQueue
   class JobNotFound < StandardError; end
 
   class << self
-    attr_writer :executor
+    attr_writer :executor, :client
 
     def executor
       @executor ||= default_executor
@@ -20,11 +20,15 @@ module KubeQueue
     end
 
     def client
-      @client ||= Client.new
+      @client ||= default_client
     end
 
     def default_executor
       Executor.new
+    end
+
+    def default_client
+      Client.new
     end
 
     def configure(&block)

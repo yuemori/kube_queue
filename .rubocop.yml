@@ -6,6 +6,8 @@ AllCops:
   Exclude:
   - Gemfile
   - Rakefile
+  - examples/**/*
+  - kube_queue.gemspec
   DisplayCopNames: true
 
 Gemspec/OrderedDependencies:
