@@ -38,13 +38,20 @@ module KubeQueue
         job
       end
 
-      def enqueue(body = nil)
-        KubeQueue.executor.enqueue(new, body)
+      def enqueue(*args)
+        job = new(*args)
+        KubeQueue.executor.enqueue(job)
+        job
       end
       alias_method :perform_async, :enqueue
 
-      def enqueue_at(body, timestamp)
-        KubeQueue.executor.enqueue_at(new, body, timestamp)
+      def enqueue_at(*args)
+        args = args.dup
+        timestamp = args.pop
+        job = new(*args)
+        job.scheduled_at = timestamp
+        KubeQueue.executor.enqueue(job)
+        job
       end
 
       def read_template
@@ -68,15 +75,15 @@ module KubeQueue
           begin
             payload = ActiveJob::Arguments.deserialize(payload)
           rescue ActiveJob::DeserializationError => e
-            logger.warn e.message
-            logger.warn "#{payload} can not deserialized"
+            logger.error e.message
+            logger.error "#{payload} can not deserialized"
           end
         end
 
         payload
       rescue JSON::ParseError => e
-        logger.warn e.message
-        logger.warn "#{payload} can not deserialized"
+        logger.error e.message
+        logger.error "#{payload} can not deserialized"
       end
     end
 
