@@ -7,7 +7,8 @@ module KubeQueue
 
     attr_reader :job_class
 
-    attr_accessor :payload, :name, :active_deadline_seconds, :backoff_limit, :starting_deadline_seconds
+    attr_accessor :payload, :name, :active_deadline_seconds, :backoff_limit, :starting_deadline_seconds,
+      :cpu_limit, :memory_limit, :cpu_request, :memory_request
 
     attr_writer :image, :namespace, :worker_name, :command,
       :container_name, :restart_policy, :job_labels, :pod_labels,
@@ -71,6 +72,10 @@ module KubeQueue
 
     def concurrent_policy
       @concurrent_policy || 'Allow'
+    end
+
+    def resources_exists?
+      @cpu_limit || @memory_limit || @cpu_request || @memory_request
     end
 
     def raise_not_found_required_parameter(field)

@@ -50,6 +50,29 @@ spec:
             name: "<%= name %>"
   <%- end %>
 <%- end %>
+<%- if spec.resources_exists? %>
+        resources:
+  <%- if spec.cpu_limit || spec.memory_limit %>
+          limits:
+    <%- if spec.cpu_limit %>
+            cpu: <%= spec.cpu_limit %>
+    <%- end %>
+    <%- if spec.memory_limit %>
+            memory: <%= spec.memory_limit %>
+    <%- end %>
+  <%- end %>
+  <%- if spec.cpu_request || spec.memory_request %>
+          requests:
+    <%- if spec.cpu_request %>
+            cpu: <%= spec.cpu_request %>
+    <%- end %>
+    <%- if spec.memory_request %>
+            memory: <%= spec.memory_request %>
+    <%- end %>
+  <%- end %>
+<%- else %>
+      resources: {}
+<%- end %>
       restartPolicy: "<%= spec.restart_policy %>"
   backoffLimit: <%= spec.backoff_limit %>
   activeDeadlineSeconds: <%= spec.active_deadline_seconds %>

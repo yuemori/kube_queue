@@ -53,6 +53,22 @@ module KubeQueue
         job_spec.env_from_config_map = secret_names
       end
 
+      def cpu_limit(limit)
+        job_spec.cpu_limit = limit
+      end
+
+      def memory_limit(limit)
+        job_spec.memory_limit = limit
+      end
+
+      def cpu_request(request)
+        job_spec.cpu_request = request
+      end
+
+      def memory_request(request)
+        job_spec.memory_request = request
+      end
+
       def starting_deadline_seconds(seconds)
         job_spec.starting_deadline_seconds = seconds
       end

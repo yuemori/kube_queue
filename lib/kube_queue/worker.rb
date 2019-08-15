@@ -134,7 +134,7 @@ module KubeQueue
     private
 
     def load_target
-      @rsource = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
+      @resource = KubeQueue.client.get_job(job_spec.namespace, job_spec.job_name(job_id))
       @loaded = true
     end
   end
