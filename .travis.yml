@@ -10,7 +10,6 @@ branches:
   - master
 before_install: gem install bundler -v 2.0.2
 script:
-- bundle exec rubocop
 - bundle exec rspec
 gem_files:
 - gemfiles/rails_5.1.gemfile
