@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.4.1
+
+- Fix `Worker.find` dosen't work
+- Add `Worker.template` accessor
+
 ## 0.4.0
 
 - Support scheduled job with Kubernetes CronJob.
