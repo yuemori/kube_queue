@@ -104,4 +104,48 @@ RSpec.describe 'KubeQueue generated manifest' do
       )
     end
   end
+
+  describe 'template' do
+    before do
+      TestWorker.template = File.expand_path('../../template/test.yaml', __FILE__)
+    end
+
+    it 'matches test manifest' do
+      expect(manifest).to match YAML.safe_load(erbh(<<~ERB, job_id: job.job_id))
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          annotations:
+            kube-queue-job-class: "TestWorker"
+            kube-queue-job-id: "<%= @job_id %>"
+            kube-queue-job-payload: '[]'
+          name: "test-worker-<%= @job_id %>"
+          namespace: default
+          labels:
+            kube-queue-job: "true"
+            kube-queue-worker-name: "test-worker"
+            kube-queue-job-class: "TestWorker"
+            kube-queue-job-id: "<%= @job_id %>"
+        spec:
+          template:
+            metadata:
+              annotations:
+                kube-queue-job-class: "TestWorker"
+                kube-queue-job-id: "<%= @job_id %>"
+                kube-queue-job-payload: '[]'
+              labels:
+                kube-queue-job: "true"
+                kube-queue-worker-name: "test-worker"
+                kube-queue-job-class: "TestWorker"
+                kube-queue-job-id: "<%= @job_id %>"
+            spec:
+              containers:
+              - name: "test-worker"
+      ERB
+    end
+
+    after do
+      TestWorker.template = nil
+    end
+  end
 end

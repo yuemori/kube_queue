@@ -12,6 +12,12 @@ module KubeQueue
     module ClassMethods
       include DSL
 
+      attr_writer :template
+
+      def template
+        @template ||= File.expand_path('../../../template/job.yaml', __FILE__)
+      end
+
       def active_job?
         defined?(ActiveJob) && ancestors.include?(ActiveJob::Base)
       end
@@ -59,7 +65,7 @@ module KubeQueue
       end
 
       def read_template
-        File.read(@template || File.expand_path('../../../template/job.yaml', __FILE__))
+        File.read(template)
       end
 
       def manifest
