@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   annotations:
-    kube-queue-job-class: "<%= spec.job_class %>"
+    kube-queue-job-class: "<%= spec.job_class.name %>"
     kube-queue-job-id: "<%= job.job_id %>"
     kube-queue-job-payload: '<%= payload %>'
   name: "<%= spec.job_name(job.job_id) %>"
@@ -10,19 +10,19 @@ metadata:
   labels:
     kube-queue-job: "true"
     kube-queue-worker-name: "<%= spec.worker_name %>"
-    kube-queue-job-class: "<%= spec.job_class %>"
+    kube-queue-job-class: "<%= spec.job_class.name %>"
     kube-queue-job-id: "<%= job.job_id %>"
 spec:
   template:
     metadata:
       annotations:
-        kube-queue-job-class: "<%= spec.job_class %>"
+        kube-queue-job-class: "<%= spec.job_class.name %>"
         kube-queue-job-id: "<%= job.job_id %>"
         kube-queue-job-payload: '<%= payload %>'
       labels:
         kube-queue-job: "true"
         kube-queue-worker-name: "<%= spec.worker_name %>"
-        kube-queue-job-class: "<%= spec.job_class %>"
+        kube-queue-job-class: "<%= spec.job_class.name %>"
         kube-queue-job-id: "<%= job.job_id %>"
 <%- spec.job_labels.each do |key, value| %>
         <%= key %>: "<%= value %>"
@@ -74,5 +74,9 @@ spec:
       resources: {}
 <%- end %>
       restartPolicy: "<%= spec.restart_policy %>"
+<%- if spec.backoff_limit %>
   backoffLimit: <%= spec.backoff_limit %>
+<%- end %>
+<%- if spec.active_deadline_seconds %>
   activeDeadlineSeconds: <%= spec.active_deadline_seconds %>
+<%- end %>

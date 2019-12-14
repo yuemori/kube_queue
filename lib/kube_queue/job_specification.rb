@@ -12,7 +12,7 @@ module KubeQueue
 
     attr_writer :image, :namespace, :worker_name, :command,
       :container_name, :restart_policy, :job_labels, :pod_labels,
-      :env_from_config_map, :env_from_secret, :concurrent_policy
+      :env_from_config_map, :env_from_secret, :concurrent_policy, :env
 
     def initialize(job_class)
       @job_class = job_class

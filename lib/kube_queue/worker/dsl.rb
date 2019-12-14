@@ -30,7 +30,7 @@ module KubeQueue
       end
 
       def active_deadline_seconds(seconds)
-        job_spec.active_deadline_seconds = seconds
+        job_spec.active_deadline_seconds = seconds.to_s
       end
 
       def backoff_limit(limit)
