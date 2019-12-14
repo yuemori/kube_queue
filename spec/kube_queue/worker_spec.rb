@@ -44,7 +44,6 @@ RSpec.describe KubeQueue::Worker do
   describe '.find' do
     let(:payload) { { message: 'hello' } }
 
-    # rubocop:disable Layout/TrailingWhitespace
     let(:job_manifest) do
       YAML.safe_load(erbh(<<~MANIFEST, job_id: job.job_id, payload: JSON.generate([payload], quirks_mode: true)))
         apiVersion: batch/v1
@@ -93,7 +92,6 @@ RSpec.describe KubeQueue::Worker do
 
     let(:resource) { K8s::Resource.new(job_manifest) }
 
-    # rubocop:enable Layout/TrailingWhitespace
     before do
       expect(KubeQueue.client).to receive(:get_job).and_return(resource)
     end
