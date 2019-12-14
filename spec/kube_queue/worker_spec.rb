@@ -2,6 +2,8 @@ require 'spec_helper'
 require 'pry-byebug'
 
 RSpec.describe KubeQueue::Worker do
+  include ERBh
+
   describe '.enqueue' do
     subject(:job) { PrintMessageJob.enqueue(arg) }
 
@@ -39,14 +41,76 @@ RSpec.describe KubeQueue::Worker do
     end
   end
 
+  describe '.find' do
+    let(:payload) { { message: 'hello' } }
+
+    # rubocop:disable Layout/TrailingWhitespace
+    let(:job_manifest) do
+      YAML.safe_load(erbh(<<~MANIFEST, job_id: job.job_id, payload: JSON.generate([payload], quirks_mode: true)))
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          annotations:
+            kube-queue-job-class: PrintMessageJob
+            kube-queue-job-id: <%= @job_id %>
+            kube-queue-job-payload: '<%= @payload %>'
+          name: print-message-job-<%= @job_id %>
+          namespace: default
+          labels:
+            kube-queue-job: 'true'
+            kube-queue-worker-name: print-message-job
+            kube-queue-job-class: PrintMessageJob
+            kube-queue-job-id: <%= @job_id %>
+        spec:
+          template:
+            metadata:
+              annotations:
+                kube-queue-job-class: PrintMessageJob
+                kube-queue-job-id: <%= @job_id %>
+                kube-queue-job-payload: '<%= @payload %>'
+              labels:
+                kube-queue-job: 'true'
+                kube-queue-worker-name: print-message-job
+                kube-queue-job-class: PrintMessageJob
+                kube-queue-job-id: <%= @job_id %>
+            spec:
+              containers:
+              - name: ruby
+                image: ruby
+                command:
+                - bundle
+                - exec
+                - kube_queue
+                - runner
+                - PrintMessageJob
+                env:
+                - name: KUBE_QUEUE_MESSAGE_PAYLOAD
+                  value: '<%= @payload %>'
+              resources: {}
+              restartPolicy: Never
+      MANIFEST
+    end
+
+    let(:resource) { K8s::Resource.new(job_manifest) }
+
+    # rubocop:enable Layout/TrailingWhitespace
+    before do
+      expect(KubeQueue.client).to receive(:get_job).and_return(resource)
+    end
+
+    subject { PrintMessageJob.find(job.job_id) }
+
+    let(:job) { PrintMessageJob.new(payload) }
+
+    it { expect(subject.job_id).to eq job.job_id }
+    it { expect(subject.resource).to eq resource }
+  end
+
   describe '#manifest' do
     subject { job.manifest }
 
-    include ERBh
-
     let(:job) { PrintMessageJob.new(message: 'hello') }
 
-    # rubocop:disable Layout/TrailingWhitespace
     let(:job_manifest) do
       YAML.safe_load(erbh(<<~MANIFEST, job_id: job.job_id, payload: JSON.generate([{ message: 'hello' }], quirks_mode: true)))
         ---
@@ -91,11 +155,8 @@ RSpec.describe KubeQueue::Worker do
                   value: '<%= @payload %>'
               resources: {}
               restartPolicy: Never
-          backoffLimit: 
-          activeDeadlineSeconds: 
       MANIFEST
     end
-    # rubocop:enable Layout/TrailingWhitespace
 
     context 'when job' do
       it { is_expected.to eq job_manifest }

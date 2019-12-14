@@ -38,10 +38,10 @@ module KubeQueue
 
         name = job_spec.job_name(job_id)
 
-        res = KubeQueue.client.get_job(name, namespace)
+        res = KubeQueue.client.get_job(namespace, name)
         worker = KubeQueue.fetch_worker(res.metadata.annotations['kube-queue-job-class'])
 
-        payload = deserialize_annotation_payload(res.annotations['kube-queue-job-payload'])
+        payload = deserialize_annotation_payload(res.metadata.annotations['kube-queue-job-payload'])
 
         job = worker.new(*payload)
         job.resource = res
@@ -81,17 +81,10 @@ module KubeQueue
         # Compatibility for ActiveJob serialized payload
         payload = [payload] unless payload.is_a?(Array)
 
-        if defined?(ActiveJob::Arguments)
-          begin
-            payload = ActiveJob::Arguments.deserialize(payload)
-          rescue ActiveJob::DeserializationError => e
-            logger.error e.message
-            logger.error "#{payload} can not deserialized"
-          end
-        end
+        payload = ActiveJob::Arguments.deserialize(payload) if defined?(ActiveJob::Arguments)
 
         payload
-      rescue JSON::ParseError => e
+      rescue JSON::ParseError, ActiveJob::DeserializationError => e
         logger.error e.message
         logger.error "#{payload} can not deserialized"
       end
