@@ -102,6 +102,12 @@ RSpec.describe KubeQueue::Worker do
 
     it { expect(subject.job_id).to eq job.job_id }
     it { expect(subject.resource).to eq resource }
+
+    context 'when error raised' do
+      before { expect(JSON).to receive(:parse).and_raise(JSON::ParserError) }
+
+      it { expect { subject }.to raise_error JSON::ParserError }
+    end
   end
 
   describe '#manifest' do

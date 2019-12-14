@@ -78,15 +78,13 @@ module KubeQueue
         return payload if payload.empty?
 
         payload = JSON.parse(payload)
+
         # Compatibility for ActiveJob serialized payload
         payload = [payload] unless payload.is_a?(Array)
 
         payload = ActiveJob::Arguments.deserialize(payload) if defined?(ActiveJob::Arguments)
 
         payload
-      rescue JSON::ParseError, ActiveJob::DeserializationError => e
-        logger.error e.message
-        logger.error "#{payload} can not deserialized"
       end
     end
 
