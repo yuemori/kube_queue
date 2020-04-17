@@ -11,7 +11,7 @@ branches:
 before_install: gem install bundler -v 2.0.2
 script:
 - bundle exec rspec
-gem_files:
+gemfile:
 - gemfiles/rails_5.1.gemfile
 - gemfiles/rails_5.2.gemfile
 - gemfiles/rails_6.0.gemfile
