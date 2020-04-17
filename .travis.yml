@@ -1,5 +1,5 @@
-sudo: false
 language: ruby
+sudo: false
 cache: bundler
 rvm:
 - 2.4.5
@@ -8,7 +8,9 @@ rvm:
 branches:
   only:
   - master
-before_install: gem install bundler -v 2.0.2
+before_install:
+- gem update --system 
+- gem update --remote bundler
 script:
 - bundle exec rspec
 gemfile:
