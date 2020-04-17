@@ -21,7 +21,7 @@ Style/NumericLiterals:
 Style/StderrPuts:
   Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false
 
 Style/StringLiterals:
@@ -39,13 +39,13 @@ Style/FrozenStringLiteralComment:
 Style/Documentation:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 128
 
 Style/EmptyCaseCondition:
   Enabled: false
 
-Layout/EmptyLineAfterMagicComment:
+Layout/ArgumentAlignment:
   Enabled: false
 
 Metrics/MethodLength:
@@ -67,6 +67,3 @@ Metrics/BlockLength:
 Style/MixinUsage:
   Exclude:
     - 'spec/**/*.rb'
-
-Layout/AlignArguments:
-  Enabled: false
