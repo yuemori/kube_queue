@@ -2,8 +2,9 @@ language: ruby
 sudo: false
 cache: bundler
 rvm:
-- 2.4.5
-- 2.6.3
+- 2.4.10
+- 2.6.6
+- 2.7.1
 - ruby-head
 branches:
   only:
@@ -11,6 +12,7 @@ branches:
 before_install:
 - gem update --system 
 - gem update --remote bundler
+install: bundle install --job=3 --retry=3
 script:
 - bundle exec rspec
 gemfile:
